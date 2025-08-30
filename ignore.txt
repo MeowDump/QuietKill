@@ -1,0 +1,17 @@
+com.android.settings
+com.android.dialer
+com.whatsapp.w4b
+com.whatsapp
+wcfjii.iemxom.hejdpo
+com.dergoogler.mmrl.wx
+com.dergoogler.mmrl
+com.google.android.webview
+me.weishu.kernelsu
+com.sukisu.ultra
+com.rifsxd.ksunext
+me.bmax.apatch
+io.github.a13e300.ksuwebui
+io.github.vvb2060.magisk
+com.topjohnwu.magisk
+wcfjii.iemxom.hejdpo
+bin.mt.plus
