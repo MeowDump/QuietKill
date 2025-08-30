@@ -4,7 +4,7 @@
 MODPATH="/data/adb/modules/QuiteKill"
 IGNORE="$MODPATH/ignore.txt"
 FORCE="$MODPATH/ForceKill.txt"
-LOG="$MODPATH/webroot/output.log"
+LOG="$MODPATH/logs/output.log"
 
 # Reset log
 > "$LOG"
