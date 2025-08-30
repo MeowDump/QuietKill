@@ -1,9 +1,9 @@
 id=QuiteKill
-name=Quite Kill 👊😎
-version=v1
-versionCode=100
+name=Quite Kill 🤫🔪
+version=v2
+versionCode=200
 author=𝗠𝗘𝗢𝗪𝗻𝗮 💅
-description=Slaughters apps running in the background harder than your breakup killed your will to live. Ignore list’s there if you're still in denial. ✅ Battery’s healed. ✅ RAM’s freed.
+description=Kills apps running in background to improve battery & device performance
 updateJson=https://raw.githubusercontent.com/TempMeow/QuietKill/main/release.json
 support=https://t.me/MeowDump
 banner=https://raw.githubusercontent.com/TempMeow/QuietKill/refs/heads/main/media/4.png

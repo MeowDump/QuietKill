@@ -1,53 +1,71 @@
 #!/system/bin/sh
 
-# Main script path
-SMASH_SCRIPT="/data/adb/modules/QuiteKill/QuiteKill.sh"
-TOGGLE_FILE="/sdcard/stopQuiteKill"
+KILLER="/data/adb/modules/QuiteKill/QuiteKill.sh"
+STOPPER="/sdcard/stopQuiteKill"
 
-# Toaster 
+# Log & debug
+DEBUG=0
+log() { [ "$DEBUG" -eq 1 ] && echo "$@"; }
+
+# Popup + vibration
 popup() {
-    am start -a android.intent.action.MAIN -e mona "$@" -n popup.toast/meow.helper.MainActivity > /dev/null
-    sleep 0.5
+  am start -a android.intent.action.MAIN -e mona "$@" -n popup.toast/meow.helper.MainActivity >/dev/null 2>&1
+  sleep 0.5
 }
 
-# Triple press config
-THRESHOLD=2           # Time window in seconds
-REQUIRED_PRESSES=3    # Number of presses
-COOLDOWN=5            # Seconds to wait after each trigger
+# Config
+PRESS_WINDOW=1
+REQUIRED_PRESSES=1
+LONG_PRESS_MIN=0.5
+COOLDOWN=5
 
 COUNT=0
 START=0
+DOWN_TIME=0
+UP_TIME=0
 
 while true; do
-  # Exit if stop file exists
-  if [ -f "$TOGGLE_FILE" ]; then
-    echo "🛑 /sdcard/stopQuiteKill found | exiting Smash listener."
-    popup "Key Smasher has been disabled"
-    exit 0
-  fi
+  [ -f "$STOPPER" ] && popup "Key Smasher disabled" && exit 0
 
-  # Listen for Volume Up key
-  key=$(getevent -qlc 1 | awk '/KEY_VOLUMEUP/ {print $3; exit}')
-  
-  if [ "$key" = "KEY_VOLUMEUP" ]; then
-    now=$(date +%s)
+  EVENT=$(getevent -lqc1)
 
-    if [ "$((now - START))" -gt "$THRESHOLD" ]; then
-      COUNT=1
+  case "$EVENT" in
+    *KEY_POWER*DOWN*)
+      now=$(date +%s)
+
+      # Double press logic
+      if [ $((now - START)) -le $PRESS_WINDOW ]; then
+        COUNT=$((COUNT + 1))
+      else
+        COUNT=1
+      fi
       START=$now
-    else
-      COUNT=$((COUNT + 1))
-    fi
 
-    # Trigger QuiteKill script on triple press
-    if [ "$COUNT" -ge "$REQUIRED_PRESSES" ]; then
-      echo "📛 Triple Volume-Up detected | killing background apps."
-      sh "$SMASH_SCRIPT" &
-      COUNT=0
-      popup "🔪Murdered all running apps 👉👈"
-      sleep "$COOLDOWN"
-    fi
-  fi
+      if [ "$COUNT" -ge "$REQUIRED_PRESSES" ]; then
+        log "POWER button detected"
+        sh "$KILLER" &
+        popup "🤫🔪 Murdered all running apps (Lock)"
+        COUNT=0
+        sleep "$COOLDOWN"
+      fi
 
-  sleep 0.1
+      # Press start
+      DOWN_TIME=$now
+      ;;
+    
+    *KEY_POWER*UP*)
+      UP_TIME=$(date +%s)
+      if [ "$DOWN_TIME" -gt 0 ]; then
+        HELD=$((UP_TIME - DOWN_TIME))
+        if [ "$HELD" -ge "$LONG_PRESS_MIN" ]; then
+          log "Long press detected ($HELD sec)"
+          sh "$KILLER" &
+          popup "🤫🔪 Murdered all running apps (Long)"
+          COUNT=0
+          sleep "$COOLDOWN"
+        fi
+        DOWN_TIME=0
+      fi
+      ;;
+  esac
 done
