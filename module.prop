@@ -1,9 +1,9 @@
 id=QuiteKill
 name=Quite Kill 🤫🔪
-version=v2.1
-versionCode=210
-author=𝗠𝗘𝗢𝗪𝗻𝗮 💅
-description=Kills apps running in background to improve battery & device performance
-updateJson=https://raw.githubusercontent.com/TempMeow/QuietKill/main/release.json
+version=v3
+versionCode=300
+author=𝗠𝗘𝗢𝗪𝗻𝗮 💅 || tg@MeowDump
+description=Automatically kills running apps when the device is locked via the power button, improving battery life and overall performance.
+updateJson=https://raw.githubusercontent.com/MeowDump/MeowDump/refs/heads/main/QuietKill/release.json
 support=https://t.me/MeowDump
-banner=https://raw.githubusercontent.com/TempMeow/QuietKill/refs/heads/main/media/4.png
+banner=https://raw.githubusercontent.com/MeowDump/MeowDump/refs/heads/main/Banner/mona4.png
