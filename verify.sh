@@ -8,7 +8,7 @@ rm -rf "$VERIFY_TEMP_DIR"
 mkdir -p "$VERIFY_TEMP_DIR"
 
 log() {
-  echo "- $1"
+  echo " ✦ $1"
 }
 
 abort_verify() {
@@ -50,10 +50,8 @@ for relpath in $ALL_FILES; do
   verify_file "$relpath"
 done
 
-# Cleanup temp dir
+# Cleanup hash files
 rm -rf "$VERIFY_TEMP_DIR"
-
-# Delete all .sha256 files from $MODPATH
 find "$MODPATH" -type f -name "*.sha256" -delete
 
-log "Verification completed successfully"
+log "Verification completed successfully."
