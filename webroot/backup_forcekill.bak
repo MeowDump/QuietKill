@@ -1,0 +1,24 @@
+com.google.android.gm                        # Gmail  
+com.google.android.calendar                  # Google Calendar  
+com.google.android.GoogleCamera              # Google Camera  
+com.google.android.apps.photos               # Google Photos    
+com.google.android.apps.nbu.files            # Files by Google  
+com.google.android.googlequicksearchbox      # Google App (Search/Assistant)  
+com.android.chrome                           # Google Chrome  
+com.android.vending                          # Google Play Store  
+com.google.android.gms                       # Google Play Services  
+com.google.android.gms.location.history      # Location History (Services)  
+com.google.android.apps.maps                 # Google Maps  
+com.google.android.youtube                   # YouTube  
+com.google.android.apps.docs                 # Google Drive  
+com.google.android.gm.lite                   # Gmail Go
+com.google.android.apps.photos.scanner       # Google Photoscanner  
+com.google.android.apps.walletnfcrel         # Google Wallet / Google Pay  
+com.google.android.apps.podcasts             # Google Podcasts  
+com.google.android.apps.googleassistant      # Google Assistant  
+com.google.android.apps.recorder             # Pixel Recorder  
+com.google.android.apps.keep                 # Google Keep  
+com.google.android.apps.tasks                # Google Tasks  
+com.google.android.apps.tachyon              # Google Meet  
+com.google.android.videos                    # Google TV / Play Movies  
+com.google.android.apps.youtube.music        # YouTube Music
