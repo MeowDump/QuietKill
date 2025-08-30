@@ -50,8 +50,10 @@ for relpath in $ALL_FILES; do
   verify_file "$relpath"
 done
 
-# Cleanup hash files
-rm -rf $VERIFY_TEMP_DIR
-log "Removed all .sha256 hash files"
+# Cleanup temp dir
+rm -rf "$VERIFY_TEMP_DIR"
 
-log "Verification completed successfully."
+# Delete all .sha256 files from $MODPATH
+find "$MODPATH" -type f -name "*.sha256" -delete
+
+log "Verification completed successfully"

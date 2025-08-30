@@ -1,7 +1,7 @@
 id=QuiteKill
 name=Quite Kill 🤫🔪
-version=v2
-versionCode=200
+version=v2.1
+versionCode=210
 author=𝗠𝗘𝗢𝗪𝗻𝗮 💅
 description=Kills apps running in background to improve battery & device performance
 updateJson=https://raw.githubusercontent.com/TempMeow/QuietKill/main/release.json
