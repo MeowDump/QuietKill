@@ -4,385 +4,551 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Kill Control</title>
+
+  <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
   <style>
-    :root {
-      --primary: #4285f4;
-      --on-primary: #ffffff;
-      --surface: #f5f5f5;
-      --surface-variant: #ffffff;
-      --on-surface: #202124;
-      --outline: #dadce0;
-      --error: #d93025;
-      --success: #188038;
-      --info: #1a73e8;
+    @font-face {
+      font-family: 'Mona';
+      src: url('mona.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    :root{
+      --primary:#ff3366;
+      --on-primary:#ffffff;
+      --surface:#fff5f8;
+      --surface-variant:#ffffff;
+      --on-surface:#1c1c1c;
+      --outline:#f7a1b5;
+      --error:#e63946;         
+      --success:#27ae60;       
+      --info:#2980b9;          
+      --shadow:0 6px 18px rgba(255,51,102,.25);
+      --radius-card:20px;
+      --radius-btn:14px;
+      --radius-item:12px;
+    }
+    body.dark{
+      --primary:#e60000;
+      --on-primary:#ffffff;
+      --surface:#000;
+      --surface-variant:#1a1a1a;
+      --on-surface:#f1f1f1;
+      --outline:#555555;
+      --error:#e60000;
+      --success:#7CFC00;
+      --info:#e60000;
+      --shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
     }
 
-    body.dark {
-      --primary: #8ab4f8;
-      --on-primary: #000000;
-      --surface: #202124;
-      --surface-variant: #303134;
-      --on-surface: #e8eaed;
-      --outline: #5f6368;
-      --error: #f28b82;
-      --success: #81c995;
-      --info: #8ab4f8;
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: 'Mona', monospace;
+      background:var(--surface);
+      color:var(--on-surface);
+      padding-bottom:110px;
+      transition:background .4s ease,color .4s ease;
+    }
+    .container{padding:1rem;max-width:650px;margin:auto}
+    h1{
+      text-align:center;margin-top:1rem;font-weight:700;color:var(--primary);
+      display:flex;align-items:center;justify-content:center;gap:.4rem
     }
 
-    * {
-      box-sizing: border-box;
+    /* Cards */
+    .card{
+      background:var(--surface-variant);
+      padding:1rem;margin:1rem 0;border-radius:var(--radius-card);
+      box-shadow:var(--shadow);
+      transition:background .3s,box-shadow .3s;
+    }
+    .card h3{
+      margin:0;font-size:1.1rem;display:flex;justify-content:space-between;
+      align-items:center;cursor:pointer;font-weight:500
+    }
+    .card h3 .material-icons{transition:transform .35s ease;font-size:1.2rem}
+
+    .card-content{
+      max-height:0;overflow:hidden;transition:max-height .4s ease,padding .3s ease; padding:0
+    }
+    .card-content.show{max-height:1000px;padding-top:.75rem}
+
+    /* Terminal */
+    .terminal{
+      font-family:monospace;background:var(--surface);padding:.75rem;border-radius:10px;
+      max-height:320px;overflow-y:auto;border:1px solid var(--outline);
+      transition:background .3s,color .3s;
+      line-height:1.35
+    }
+    .terminal .success{color:var(--success)}
+    .terminal .error{color:var(--error)}
+    .terminal .info{color:var(--info)}
+
+    /* Inputs */
+    input[type=text], input[type=search]{
+      width:100%;padding:.75rem;border-radius:10px;border:1px solid var(--outline);
+      font-size:1rem;background:var(--surface);color:var(--on-surface);transition:background .3s,color .3s
     }
 
-    body {
-      margin: 0;
-      font-family: 'Roboto', sans-serif;
-      background: var(--surface);
-      color: var(--on-surface);
-      padding-bottom: 100px;
-      transition: background 0.3s, color 0.3s;
+    /* Buttons */
+    .btn{
+      background:var(--primary);color:var(--on-primary);padding:.75rem;border-radius:var(--radius-btn);
+      border:none;font-size:1rem;font-weight:500;cursor:pointer;width:100%;margin-top:.5rem;
+      display:flex;align-items:center;justify-content:center;gap:.45rem;position:relative;
+      transition:transform .2s,opacity .2s,filter .2s
     }
+    .btn:active{transform:scale(.98);opacity:.95}
+    .btn[disabled]{opacity:.6;pointer-events:none;filter:grayscale(.2)}
+    .btn .material-icons{font-size:1.2rem}
 
-    .container {
-      padding: 1rem;
-      max-width: 600px;
-      margin: auto;
+    /* Ripple */
+    .ripple{
+      position:absolute;border-radius:50%;transform:scale(0);animation:ripple .6s linear;opacity:.35;background:#fff
     }
+    @keyframes ripple{to{transform:scale(4);opacity:0}}
 
-    h1 {
-      text-align: center;
-      margin-top: 1rem;
-      color: var(--primary);
+    /* Lists */
+    .list{margin-top:.5rem;display:flex;flex-direction:column;gap:.5rem;max-height:300px;overflow-y:auto}
+    .list-item{
+      background:var(--surface);border:1px solid var(--outline);padding:.5rem .75rem;border-radius:var(--radius-item);
+      display:flex;justify-content:space-between;align-items:center;gap:.5rem;transition:background .3s,color .3s
     }
-
-    .card {
-      background: var(--surface-variant);
-      padding: 1rem;
-      margin: 1rem 0;
-      border-radius: 12px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    .list-item .pkg{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:78%}
+    .list-item button{
+      background:var(--error);color:#fff;border:none;padding:.35rem .65rem;border-radius:8px;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;transition:background .2s
     }
+    .list-item button:hover{background:#c5221f}
+    .list-item button .material-icons{font-size:1rem}
 
-    .card h3 {
-      margin: 0;
-      font-size: 1.1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
+    /* Log controls row */
+    .controls{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:space-between;margin:.5rem 0}
+    .controls-left{display:flex;gap:.5rem;align-items:center}
+    .controls-right{display:flex;gap:.5rem;align-items:center}
+    .chip{
+      display:inline-flex;align-items:center;gap:.25rem;padding:.25rem .5rem;border-radius:999px;
+      background:transparent;border:1px solid var(--outline);font-size:.85rem
     }
-
-    .card h3 span {
-      display: inline-block;
-      transition: transform 0.35s ease;
-    }
-
-    .card-content {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.4s ease, padding 0.3s ease;
-      padding: 0;
-    }
-
-    .card-content.show {
-      max-height: 1000px;
-      padding-top: 0.75rem;
-    }
-
-    .terminal {
-      font-family: monospace;
-      background: var(--surface);
-      padding: 0.75rem;
-      border-radius: 8px;
-      max-height: 300px;
-      overflow-y: auto;
-      border: 1px solid var(--outline);
-    }
-
-    .terminal .success { color: var(--success); }
-    .terminal .error { color: var(--error); }
-    .terminal .info { color: var(--info); }
-
-    input[type=text] {
-      width: 100%;
-      padding: 0.75rem;
-      border-radius: 8px;
-      border: 1px solid var(--outline);
-      font-size: 1rem;
-      background: var(--surface);
-      color: var(--on-surface);
-    }
-
-    .btn {
+    .controls-right button {
       background: var(--primary);
       color: var(--on-primary);
-      padding: 0.75rem;
-      border-radius: 10px;
-      border: none;
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      width: 100%;
-      margin-top: 0.5rem;
-      transition: background 0.3s;
+      border-radius: var(--radius-btn);
+      box-shadow: var(--shadow);
     }
 
-    .btn:active {
+    .controls-right button:hover {
       opacity: 0.9;
     }
 
-    .list {
-      margin-top: 0.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      max-height: 300px;
-      overflow-y: auto;
-    }
-
-    .list-item {
-      background: var(--surface);
+    .controls-right input {
+      background: var(--surface-variant);
       border: 1px solid var(--outline);
-      padding: 0.5rem 0.75rem;
-      border-radius: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      color: var(--on-surface);
+      border-radius: var(--radius-item);
     }
 
-    .list-item button {
-      background: var(--error);
-      color: white;
-      border: none;
-      padding: 0.3rem 0.6rem;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .fab-toggle {
-      position: fixed;
-      bottom: 1.25rem;
-      right: 1.25rem;
+    /* Small buttons */
+    .btn-sm{
       background: var(--primary);
       color: var(--on-primary);
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
+      border:none;
+      padding:.4rem .65rem;
+      border-radius:8px;
+      font-size:.85rem;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:.3rem;
+      transition: background .3s, opacity .3s;
+    }
+
+    .btn-sm:hover{
+      opacity:.85;
+    }
+
+    /* Snackbar */
+    #snackbar{
+      position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(20px);
+      background:#323232;color:#fff;min-width:200px;max-width:90vw;padding:.75rem 1rem;border-radius:10px;
+      display:flex;align-items:center;gap:.5rem;box-shadow:var(--shadow);opacity:0;pointer-events:none;z-index:9999;
+      transition:opacity .25s,transform .25s
+    }
+    #snackbar.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+    #snackbar.success{background:#2e7d32}
+    #snackbar.error{background:#b00020}
+    #snackbar.info{background:#6e23de}
+    #snackbar .material-icons{font-size:1.2rem}
+    
+    #snackbar{
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    /* FAB Theme toggle */
+    .fab-toggle{
+      position:fixed;bottom:1.25rem;right:1.25rem;background:var(--primary);color:var(--on-primary);
+      width:55px;height:55px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+      box-shadow:var(--shadow);cursor:pointer;z-index:99;font-size:1.4rem;transition:transform .3s,background .3s
+    }
+    .fab-toggle:active{transform:rotate(30deg) scale(.95)}
+
+    /* Reduce Motion */
+    @media (prefers-reduced-motion: reduce){
+      *{transition:none!important;animation:none!important}
+    }
+    .killer-heading {
+      text-align: center;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      cursor: pointer;
-      z-index: 99;
-      font-size: 1.2rem;
+      font-size: 2rem;
+      color: var(--on-surface); /* heading text uses theme text color */
     }
-
-    .log-controls {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 0.5rem;
-    }
-
-    .log-controls button {
-      background: #ccc;
-      color: #000;
-      border: none;
-      padding: 0.3rem 0.7rem;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      cursor: pointer;
+    .killer-heading .material-symbols-outlined {
+      font-size: 4rem;
+      margin-bottom: 6px;
+      color: var(--primary); /* icon adapts to theme’s primary color */
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🤫🔪 Kill Control</h1>
+    <h2 class="killer-heading">
+      <span class="material-symbols-outlined">swords</span>
+      Kill Control
+    </h2>
 
+    <!-- Terminal Card -->
     <div class="card">
       <h3>Terminal Output</h3>
-      <div class="log-controls"><button onclick="clearOutput()">🧹 Clear Logs</button></div>
-      <div class="terminal" id="output"><span style="opacity:0.6;">No activity yet... Check Logs</span></div>
+
+      <div class="controls">
+        <div class="controls-left">
+          <label class="chip" title="Auto scroll logs">
+            <input id="autoScroll" type="checkbox" checked style="accent-color:var(--primary);margin-right:.4rem"> Auto-scroll
+          </label>
+          <span class="chip" id="statKilled" title="Killed count">
+            <span class="material-icons" aria-hidden="true">task_alt</span><b>0</b>
+          </span>
+          <span class="chip" id="statSkipped" title="Skipped count">
+            <span class="material-icons" aria-hidden="true">warning_amber</span><b>0</b>
+          </span>
+        </div>
+        <div class="controls-right">
+          <input id="logFilter" type="search" placeholder="Filter log..." style="max-width:220px">
+          <button class="btn-sm btn-icon" onclick="copyLog()" title="Copy log">
+            <span class="material-icons">content_copy</span>
+          </button>
+          <button class="btn-sm btn-icon" onclick="exportLog()" title="Export log">
+            <span class="material-icons">download</span>
+          </button>
+          <button class="btn-sm" onclick="clearOutput()" title="Clear log">
+            <span class="material-icons">delete_sweep</span> Clear
+          </button>
+        </div>
+      </div>
+
+      <div class="terminal" id="output"><span style="opacity:.6;">No activity yet... Check Logs</span></div>
     </div>
 
+    <!-- Actions -->
     <div class="card">
-      <button class="btn" onclick="runScript()">Force Stop Apps</button>
-      <button class="btn" onclick="viewLog()">View Log</button>
+      <button id="runBtn" class="btn" onclick="runScript()">
+        <span class="material-icons">block</span> Force Stop Apps
+      </button>
+      <button id="viewBtn" class="btn" onclick="viewLog()">
+        <span class="material-icons">article</span> View Log
+      </button>
     </div>
 
+    <!-- Ignore List -->
     <div class="card">
-      <h3 onclick="toggleCard(this)">🌟 Ignore List<span>▶</span></h3>
+      <h3 onclick="toggleCard(this)">Ignore List <span class="material-icons">chevron_right</span></h3>
       <div class="card-content" id="ignoreSection">
-        <input type="text" id="pkgInput" placeholder="e.g. com.whatsapp">
-        <button class="btn" onclick="addToIgnoreList()">Add to Ignore List</button>
+        <input type="text" id="pkgInput" placeholder="Add app which you don't want to kill" autocomplete="off">
+        <button class="btn" onclick="addToIgnoreList()"><span class="material-icons">playlist_add</span> Add to Ignore List</button>
         <div class="list" id="ignoredListDisplay"></div>
       </div>
     </div>
 
+    <!-- System Kill List -->
     <div class="card">
-      <h3 onclick="toggleCard(this)">💀 System App Killer<span>▶</span></h3>
+      <h3 onclick="toggleCard(this)">System App Killer <span class="material-icons">chevron_right</span></h3>
       <div class="card-content" id="killSection">
-        <input type="text" id="killPkgInput" placeholder="e.g. com.google.android.gms">
-        <button class="btn" onclick="addToKillList()">Add to Kill List</button>
+        <input type="text" id="killPkgInput" placeholder="Add system app which you want to kill" autocomplete="off">
+        <button class="btn" onclick="addToKillList()"><span class="material-icons">playlist_add</span> Add to Kill List</button>
         <div class="list" id="killListDisplay"></div>
       </div>
     </div>
   </div>
 
-  <div class="fab-toggle" onclick="toggleTheme()">🌓</div>
+  <!-- Theme FAB -->
+  <div class="fab-toggle" onclick="toggleTheme()" title="Toggle theme">
+    <span class="material-icons">brightness_6</span>
+  </div>
+
+  <!-- Snackbar -->
+  <div id="snackbar" role="status" aria-live="polite">
+    <span class="material-icons">info</span>
+    <span id="snackText">Hello</span>
+  </div>
 
   <script>
-    const toast = msg => alert(msg);
+    /* ===== keep your core logic, just enhanced UI around it ===== */
     const output = document.getElementById("output");
     const listDisplay = document.getElementById("ignoredListDisplay");
     const killListDisplay = document.getElementById("killListDisplay");
+    const runBtn = document.getElementById("runBtn");
+    const viewBtn = document.getElementById("viewBtn");
+    const autoScrollEl = document.getElementById("autoScroll");
+    const statKilled = document.getElementById("statKilled").querySelector("b");
+    const statSkipped = document.getElementById("statSkipped").querySelector("b");
 
-    let killCount = 0;
-    let skipCount = 0;
+    let killCount = 0, skipCount = 0, autoScroll = true;
 
+    // Snackbar
+    function showSnack(msg,type="info"){
+      const bar=document.getElementById("snackbar");
+      bar.className=""; bar.classList.add(type); // reset
+      bar.querySelector(".material-icons").textContent= type==="success"?"task_alt":type==="error"?"error":"info";
+      document.getElementById("snackText").textContent=msg;
+      bar.classList.add("show");
+      clearTimeout(showSnack._t);
+      showSnack._t=setTimeout(()=>bar.classList.remove("show"),2200);
+    }
+    const toast = showSnack; // replace alert()
+
+    // Ripple
+    function attachRipples(selector){
+      document.querySelectorAll(selector).forEach(btn=>{
+        btn.addEventListener("click", function(e){
+          const r=document.createElement("span");
+          const size=Math.max(this.offsetWidth,this.offsetHeight);
+          r.className="ripple"; r.style.width=r.style.height=size+"px";
+          const rect=this.getBoundingClientRect();
+          r.style.left=(e.clientX-rect.left-size/2)+"px";
+          r.style.top=(e.clientY-rect.top-size/2)+"px";
+          this.appendChild(r);
+          setTimeout(()=>r.remove(),600);
+        });
+      });
+    }
+
+    // Loading state
+    function setLoading(button, isLoading){
+      if(!button) return;
+      if(isLoading){
+        button.setAttribute("disabled","true");
+        button.dataset._label = button.innerHTML;
+        button.innerHTML = `<span class="material-icons">hourglass_top</span> Working...`;
+      }else{
+        button.removeAttribute("disabled");
+        if(button.dataset._label) button.innerHTML = button.dataset._label;
+      }
+    }
+
+    // KernelSU shell
     const runShell = (cmd, cb) => {
-      if (!window.ksu || typeof ksu.exec !== "function") return toast("KernelSU not available");
+      if (!window.ksu || typeof ksu.exec !== "function"){
+        toast("KernelSU not available","error"); return cb?.(1,"","");
+      }
       const id = "cb_" + Date.now();
-      window[id] = (code, stdout, stderr) => {
-        delete window[id];
-        cb?.(code, stdout, stderr);
-      };
-      ksu.exec(cmd, '{}', id);
+      window[id] = (code, stdout, stderr) => { delete window[id]; cb?.(code, stdout, stderr); };
+      ksu.exec(cmd, "{}", id);
     };
+
+    // Output rendering + live stats
+    function updateStats(){ statKilled.textContent = killCount; statSkipped.textContent = skipCount; }
 
     const appendOutput = text => {
       const line = document.createElement("div");
 
       if (text.includes("📱 Killing user-installed apps")) {
-        killCount = 0; skipCount = 0;
-        line.innerHTML = `<hr><strong style="color:#1a73e8;">📱 Killing User Apps</strong><hr>`;
+        killCount = 0; skipCount = 0; updateStats();
+        line.innerHTML = `<hr><strong class="info">📱 Killing User Apps</strong><hr>`;
       } else if (text.includes("⚙️ Killing system apps from ForceKill.txt")) {
-        line.innerHTML = `<hr><strong style="color:#d93025;">⚙️ Killing System Apps</strong><hr>`;
+        line.innerHTML = `<hr><strong class="error">⚙️ Killing System Apps</strong><hr>`;
       } else if (text.includes("🎯 Done")) {
-        const summary = `<br><strong>✅ Killed: ${killCount} apps</strong><br><strong style="color:orange;">⚠️ Skipped: ${skipCount} apps</strong><br>`;
-        line.innerHTML = summary + `<hr><strong style="color:#188038;">🎯 All Done</strong><hr>`;
+        const summary = `<br><strong class="success">✅ Killed: ${killCount} apps</strong> &nbsp; <strong class="info" style="color:orange">⚠️ Skipped: ${skipCount} apps</strong><br>`;
+        line.innerHTML = summary + `<hr><strong class="success">🎯 All Done</strong><hr>`;
       } else if (text.includes("⚠️ [User] Skipped")) {
-        skipCount++;
+        skipCount++; updateStats();
         line.innerHTML = `<div style="color:orange;">${text}</div>`;
       } else if (text.includes("⏳")) {
-        line.innerHTML = `<div style="color:#1a73e8;">${text}</div>`;
+        line.innerHTML = `<div class="info">${text}</div>`;
       } else if (text.includes("✅")) {
-        killCount++;
-        line.innerHTML = `<div style="color:#188038;">${text}</div>`;
+        killCount++; updateStats();
+        line.innerHTML = `<div class="success">${text}</div>`;
       } else if (text.includes("⛔")) {
-        line.innerHTML = `<div style="color:#d93025;">${text}</div>`;
+        line.innerHTML = `<div class="error">${text}</div>`;
       } else {
         line.textContent = text;
       }
 
       output.appendChild(line);
-      output.scrollTop = output.scrollHeight;
+      if (autoScroll) output.scrollTop = output.scrollHeight;
+      applyLogFilter(); // keep filter active
     };
 
-    const clearOutput = () => {
-      output.innerHTML = `<span style="opacity:0.6;">No activity yet...</span>`;
-    };
+    function clearOutput(){
+      output.innerHTML = `<span style="opacity:.6;">No activity yet...</span>`;
+      killCount = 0; skipCount = 0; updateStats();
+    }
 
-    function runScript() {
-      toast(" Hey dude, listen, This action will force-stop all installed apps, as well as any system apps you've added to the force kill list. Only the apps you've added to the ignore list will remain unaffected.");
+    // Mini features: copy/export/filter
+    function getLogText(){
+      const lines = Array.from(output.childNodes).map(n=> n.innerText || n.textContent || "");
+      return lines.join("\n").trim();
+    }
+    async function copyLog(){
+      const txt=getLogText() || "No activity yet...";
+      try{ await navigator.clipboard.writeText(txt); toast("Log copied","success"); }
+      catch{ toast("Copy failed","error"); }
+    }
+    function exportLog(){
+      const txt = getLogText() || "No activity yet...";
+
+    // Save log to module folder
+      const targetDir = "/sdcard";
+      const targetFile = targetDir + "/kill-control-log.txt";
+
+      runShell(`mkdir -p ${targetDir} && printf "%s\\n" "${txt.replace(/(["`$\\])/g,'\\$1')}" > ${targetFile}`, 
+        (code) => {
+          if (code === 0) toast("Log exported to " + targetFile, "success");
+          else toast("Export to module folder failed", "error");
+        });
+    }
+
+    // Filter logs live
+    const logFilter = document.getElementById("logFilter");
+    function applyLogFilter(){
+      const q = (logFilter.value||"").toLowerCase().trim();
+      Array.from(output.children).forEach(el=>{
+        const t = (el.innerText||el.textContent||"").toLowerCase();
+        el.style.display = q ? (t.includes(q) ? "" : "none") : "";
+      });
+    }
+    logFilter.addEventListener("input", applyLogFilter);
+
+    // App actions
+    function runScript(){
+      toast("Force-stopping all user apps + selected system apps. Ignored list stays untouched.","info");
+      setLoading(runBtn,true); setLoading(viewBtn,true);
       clearOutput();
       appendOutput("⏳ Executing force-stop script...");
       runShell("sh /data/adb/modules/QuiteKill/QuiteKill.sh", () => {
-        runShell("cat /data/adb/modules/QuiteKill/webroot/output.log", (code, out) => {
+        runShell("cat /data/adb/modules/QuiteKill/logs/output.log", (code, out) => {
           clearOutput();
-          if (code === 0) out.split("\n").forEach(appendOutput);
+          if (code === 0 && out) out.split("\n").forEach(appendOutput);
           else appendOutput("⛔ Output log not found.");
+          setLoading(runBtn,false); setLoading(viewBtn,false);
         });
       });
     }
 
-    function viewLog() {
-      runShell("cat /data/adb/modules/QuiteKill/webroot/output.log", (code, out) => {
+    function viewLog(){
+      setLoading(viewBtn,true);
+      runShell("cat /data/adb/modules/QuiteKill/logs/output.log", (code, out) => {
         clearOutput();
-        if (code === 0) out.split("\n").forEach(appendOutput);
-        else toast("Log not found.");
+        if (code === 0 && out) out.split("\n").forEach(appendOutput);
+        else toast("Log not found.","error");
+        setLoading(viewBtn,false);
       });
     }
 
     function addToList(filePath, inputId, displayList, removeFunc) {
-      const pkg = document.getElementById(inputId).value.trim();
-      if (!pkg) return toast("Enter a package name");
+      const raw = document.getElementById(inputId).value.trim();
+      const pkg = raw.replace(/[^\w\.\-]/g,""); // basic sanitize
+      if (!pkg) return toast("Enter a package name","error");
       runShell(`grep -Fxq "${pkg}" ${filePath} || echo "${pkg}" >> ${filePath}`, () => {
         const div = document.createElement("div");
         div.className = "list-item";
-        div.innerHTML = `<span>${pkg}</span><button onclick="${removeFunc}('${pkg.replace(/'/g, "\\'")}')">✖</button>`;
+        div.innerHTML = `<span class="pkg">${pkg}</span>
+          <button onclick="${removeFunc}('${pkg.replace(/'/g,"\\'")}')"><span class="material-icons">close</span></button>`;
         document.getElementById(inputId).value = "";
         displayList.appendChild(div);
         displayList.scrollTop = displayList.scrollHeight;
+        toast("Added","success");
       });
     }
+    function addToIgnoreList(){ addToList("/data/adb/modules/QuiteKill/ignore.txt","pkgInput",listDisplay,"removeFromIgnoreList"); }
+    function addToKillList(){ addToList("/data/adb/modules/QuiteKill/ForceKill.txt","killPkgInput",killListDisplay,"removeFromKillList"); }
 
-    function addToIgnoreList() {
-      addToList("/data/adb/modules/QuiteKill/ignore.txt", "pkgInput", listDisplay, "removeFromIgnoreList");
-    }
+    function removeFromIgnoreList(pkg){ runShell(`sed -i '/^${pkg}$/d' /data/adb/modules/QuiteKill/ignore.txt`, loadIgnoredList); toast("Removed","info"); }
+    function removeFromKillList(pkg){ runShell(`sed -i '/^${pkg}$/d' /data/adb/modules/QuiteKill/ForceKill.txt`, loadKillList); toast("Removed","info"); }
 
-    function addToKillList() {
-      addToList("/data/adb/modules/QuiteKill/ForceKill.txt", "killPkgInput", killListDisplay, "removeFromKillList");
-    }
-
-    function removeFromIgnoreList(pkg) {
-      runShell(`sed -i '/^${pkg}$/d' /data/adb/modules/QuiteKill/ignore.txt`, loadIgnoredList);
-    }
-
-    function removeFromKillList(pkg) {
-      runShell(`sed -i '/^${pkg}$/d' /data/adb/modules/QuiteKill/ForceKill.txt`, loadKillList);
-    }
-
-    function loadIgnoredList() {
+    function loadIgnoredList(){
       listDisplay.innerHTML = "";
       runShell("cat /data/adb/modules/QuiteKill/ignore.txt", (code, out) => {
         if (code === 0 && out.trim()) {
+          const frag = document.createDocumentFragment();
           out.trim().split("\n").forEach(pkg => {
             const div = document.createElement("div");
             div.className = "list-item";
-            div.innerHTML = `<span>${pkg}</span><button onclick="removeFromIgnoreList('${pkg.replace(/'/g, "\\'")}')">✖</button>`;
-            listDisplay.appendChild(div);
+            div.innerHTML = `<span class="pkg">${pkg}</span>
+              <button onclick="removeFromIgnoreList('${pkg.replace(/'/g,"\\'")}')"><span class="material-icons">close</span></button>`;
+            frag.appendChild(div);
           });
+          listDisplay.appendChild(frag);
         } else {
           listDisplay.innerHTML = "<i>No ignored packages yet.</i>";
         }
       });
     }
-
-    function loadKillList() {
+    function loadKillList(){
       killListDisplay.innerHTML = "";
       runShell("cat /data/adb/modules/QuiteKill/ForceKill.txt", (code, out) => {
         if (code === 0 && out.trim()) {
+          const frag = document.createDocumentFragment();
           out.trim().split("\n").forEach(pkg => {
             const div = document.createElement("div");
             div.className = "list-item";
-            div.innerHTML = `<span>${pkg}</span><button onclick="removeFromKillList('${pkg.replace(/'/g, "\\'")}')">✖</button>`;
-            killListDisplay.appendChild(div);
+            div.innerHTML = `<span class="pkg">${pkg}</span>
+              <button onclick="removeFromKillList('${pkg.replace(/'/g,"\\'")}')"><span class="material-icons">close</span></button>`;
+            frag.appendChild(div);
           });
+          killListDisplay.appendChild(frag);
         } else {
           killListDisplay.innerHTML = "<i>No apps set to kill manually.</i>";
         }
       });
     }
 
-    function toggleTheme() {
+    // Theme + card toggle
+    function toggleTheme(){
       const isDark = document.body.classList.toggle("dark");
       localStorage.setItem("theme", isDark ? "dark" : "light");
+      toast(isDark?"Dark mode":"Light mode","info");
     }
-
-    function toggleCard(header) {
+    function toggleCard(header){
       const content = header.nextElementSibling;
-      const icon = header.querySelector("span");
+      const icon = header.querySelector(".material-icons");
       const isOpen = content.classList.toggle("show");
-      icon.style.transform = isOpen ? "rotate(90deg) scale(1.2)" : "rotate(0deg) scale(1)";
+      icon.style.transform = isOpen ? "rotate(90deg)" : "rotate(0deg)";
     }
 
-    if (localStorage.getItem("theme") === "dark") {
+    // Preferences
+    if (localStorage.getItem("theme") === "dark" ||
+       (!localStorage.getItem("theme") && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)){
       document.body.classList.add("dark");
     }
+    autoScrollEl.addEventListener("change",()=>{ autoScroll = !!autoScrollEl.checked; });
 
+    // Enter-to-add
+    document.getElementById("pkgInput").addEventListener("keydown",e=>{ if(e.key==="Enter") addToIgnoreList(); });
+    document.getElementById("killPkgInput").addEventListener("keydown",e=>{ if(e.key==="Enter") addToKillList(); });
+
+    // Init
     loadIgnoredList();
     loadKillList();
+    attachRipples(".btn,.btn-sm,.fab-toggle");
+
   </script>
 </body>
 </html>
