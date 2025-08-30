@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smash Control</title>
+  <style>
+    @font-face {
+      font-family: 'Mona';
+      src: url('mona.ttf') format('truetype');
+    }
+
+    :root {
+      --bg: #0f0f0f;
+      --fg: #ffffff;
+      --card: #1c1c1e;
+      --input-bg: #2c2c2e;
+      --accent: #08eaff;
+      --error: #ff5555;
+      --success: #00ff88;
+      --info: #ffd966;
+      --btn-text: #ffffff;
+    }
+
+    body.light {
+      --bg: #ffffff;
+      --fg: #111111;
+      --card: #f2f2f2;
+      --input-bg: #e0e0e0;
+      --accent: #007aff;
+      --error: #ff3b30;
+      --success: #007e33;
+      --info: #ff9500;
+      --btn-text: #ffffff;
+    }
+
+    body {
+      font-family: 'Mona', sans-serif;
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      transition: background 0.3s, color 0.3s;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      color: var(--accent);
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      box-shadow: 0 0 20px rgba(0, 255, 213, 0.08);
+    }
+
+    .btn {
+      background: var(--accent);
+      color: var(--btn-text);
+      padding: 0.8rem 1.2rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+    }
+
+    body.dark .btn {
+      color: #000 !important;
+    }
+
+    .btn-block {
+      display: block;
+      width: 100%;
+      margin-top: 0.8rem;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .btn-group .btn {
+      flex: 1;
+    }
+
+    .terminal {
+      background: #111;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-top: 1rem;
+      font-family: monospace;
+      max-height: 200px;
+      overflow-y: auto;
+      color: var(--accent);
+      white-space: pre-wrap;
+    }
+
+    body.light .terminal {
+      background: #f4f4f4;
+      color: #000;
+    }
+
+    .terminal .success {
+      color: var(--success);
+    }
+
+    .terminal .error {
+      color: var(--error);
+    }
+
+    .terminal .info {
+      color: var(--info);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #000;
+      padding: 0.7rem 1.6rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 10px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 999;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    input[type="text"] {
+      padding: 0.7rem;
+      border: none;
+      border-radius: 6px;
+      width: 100%;
+      margin-top: 0.5rem;
+      background: var(--input-bg);
+      color: var(--fg);
+    }
+
+    #ignoredListDisplay {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.9rem;
+      background: transparent;
+      padding-top: 1rem;
+    }
+
+    .ignored-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--input-bg);
+      color: var(--fg);
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+    }
+
+    .ignored-item button {
+      background: var(--error);
+      border: none;
+      padding: 0.3rem 0.6rem;
+      color: white;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .toggle-wrap {
+      text-align: center;
+      margin: 1rem auto;
+    }
+
+    .toggle-wrap input[type="checkbox"] {
+      width: 50px;
+      height: 26px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: #ccc;
+      outline: none;
+      border-radius: 30px;
+      position: relative;
+      transition: 0.3s;
+    }
+
+    .toggle-wrap input[type="checkbox"]:checked {
+      background: var(--accent);
+    }
+
+    .toggle-wrap input[type="checkbox"]::before {
+      content: '';
+      width: 22px;
+      height: 22px;
+      background: #fff;
+      border-radius: 50%;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      transition: 0.3s;
+    }
+
+    .toggle-wrap input[type="checkbox"]:checked::before {
+      transform: translateX(24px);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>💣 Smash Control</h1>
+
+    <div class="toggle-wrap">
+      <input type="checkbox" id="themeToggle" />
+    </div>
+
+    <div class="card">
+      <h3>Terminal Output</h3>
+      <div class="terminal" id="output"><span style="opacity:0.6;">No activity yet...</span></div>
+    </div>
+
+    <div class="card">
+      <div class="btn-group">
+        <button class="btn" onclick="runScript()">Force Stop Apps</button>
+        <button class="btn" onclick="viewLog()">View Log</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>➕ Add Ignored Package</h3>
+      <input type="text" id="pkgInput" placeholder="e.g. com.whatsapp">
+      <button class="btn btn-block" onclick="addToIgnoreList()">Add to Ignore List</button>
+      <div id="ignoredListDisplay"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const toast = document.getElementById("toast");
+    const output = document.getElementById("output");
+    const pkgInput = document.getElementById("pkgInput");
+    const listDisplay = document.getElementById("ignoredListDisplay");
+    const themeToggle = document.getElementById("themeToggle");
+
+    const savedTheme = localStorage.getItem("theme") || "dark";
+    document.body.classList.add(savedTheme);
+    themeToggle.checked = savedTheme === "dark";
+
+    themeToggle.addEventListener("change", () => {
+      const theme = themeToggle.checked ? "dark" : "light";
+      document.body.classList.remove("dark", "light");
+      document.body.classList.add(theme);
+      localStorage.setItem("theme", theme);
+    });
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 3000);
+    }
+
+    function appendOutput(text) {
+      const line = document.createElement("div");
+
+      if (text.includes("✅")) {
+        line.className = "success";
+      } else if (text.includes("⛔") || text.toLowerCase().includes("fail")) {
+        line.className = "error";
+      } else if (text.includes("⏳") || text.toLowerCase().includes("executing")) {
+        line.className = "info";
+      }
+
+      line.textContent = text;
+      output.appendChild(line);
+      output.scrollTop = output.scrollHeight;
+    }
+
+    function clearOutput() {
+      output.innerHTML = "";
+    }
+
+    function runShell(cmd, cb) {
+      if (typeof ksu !== "object" || typeof ksu.exec !== "function") {
+        showToast("KernelSU not available");
+        return;
+      }
+      const id = "cb_" + Date.now();
+      window[id] = (code, stdout, stderr) => {
+        delete window[id];
+        cb?.(code, stdout, stderr);
+      };
+      ksu.exec(cmd, '{}', id);
+    }
+
+    function runScript() {
+      clearOutput();
+      appendOutput("⏳ Executing force-stop script...");
+      runShell("sh /data/adb/modules/QuiteKill/QuiteKill.sh", () => {
+        setTimeout(viewLog, 1500);
+      });
+    }
+
+    function viewLog() {
+      runShell("cat /data/adb/modules/QuiteKill/webroot/output.log", (code, out) => {
+        clearOutput();
+        if (code === 0) {
+          out.split("\n").forEach(line => appendOutput(line));
+        } else {
+          showToast("Log not found.");
+        }
+      });
+    }
+
+    function addToIgnoreList() {
+      const pkg = pkgInput.value.trim();
+      if (!pkg) return showToast("Enter a package name");
+      runShell(`echo '${pkg}' >> /data/adb/modules/QuiteKill/ignore.txt`, () => {
+        showToast("Package added");
+        pkgInput.value = "";
+        loadIgnoredList();
+      });
+    }
+
+    function removeFromIgnoreList(pkg) {
+      runShell(`sed -i '/^${pkg}$/d' /data/adb/modules/QuiteKill/ignore.txt`, () => {
+        showToast("Package removed");
+        loadIgnoredList();
+      });
+    }
+
+    function loadIgnoredList() {
+      runShell("cat /data/adb/modules/QuiteKill/ignore.txt", (code, out) => {
+        listDisplay.innerHTML = "";
+        if (code === 0 && out.trim()) {
+          out.trim().split("\n").forEach(pkg => {
+            const row = document.createElement("div");
+            row.className = "ignored-item";
+            row.innerHTML = `${pkg} <button onclick="removeFromIgnoreList('${pkg}')">✖</button>`;
+            listDisplay.appendChild(row);
+          });
+        } else {
+          listDisplay.innerHTML = "<i>No ignored packages yet.</i>";
+        }
+      });
+    }
+
+    loadIgnoredList();
+  </script>
+</body>
+</html>
