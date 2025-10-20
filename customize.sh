@@ -1,8 +1,15 @@
 #!/system/bin/sh
 
-# Log dir
+# Paths
+MODDIR=${0%/*}
 LOG="/sdcard/installation.log"
+UPDATE="/data/adb/modules_update/QuiteKill"
 mkdir -p "$MODPATH/logs"
+OLD_MOD_PATH="/data/adb/modules/QuiteKill"
+UPDATE_MOD_PATH="/data/adb/modules_update/QuiteKill"
+
+# Files to preserve
+FILES="ForceKill.txt ignore.txt"
 
 # Load module details
 MODNAME=$(grep_prop name $TMPDIR/module.prop)
@@ -31,6 +38,12 @@ debug() {
     echo "$1" | tee -a "$LOG"
 }
 
+# Meow Redirect
+release_source() {
+    [ -f "/data/adb/Box-Brain/noredirect" ] && return 0
+    nohup am start -a android.intent.action.VIEW -d https://t.me/MeowDump >/dev/null 2>&1 &
+}
+
 # Header
 debug " "
 debug "┌──── Module Info ────────────────────┐"
@@ -53,7 +66,7 @@ if [ "$BOOTMODE" ] && [ "$KSU" ]; then
     abort   "Please use only KernelSU or Magisk."
   }
 elif [ "$BOOTMODE" ] && [ "$MAGISK_VER_CODE" ]; then
-  debug "│ Provider.         : Magisk"
+  debug "│ Provider        : Magisk"
   debug "│ Magisk Version  : $MAGISK_VER_CODE"
 else
   debug "│ Root      : Unknown / Unsupported"
@@ -83,15 +96,32 @@ debug "└───────────────────────�
 debug " "
 
 # Verify ZIP
-unzip -o "$ZIPFILE" 'verify.sh' -d "$TMPDIR" >&2
-if [ ! -f "$TMPDIR/verify.sh" ]; then
-  debug "- Module files are corrupted, please re-download" 0.2 "sar"
-  exit 1
-fi
+  if [ -n "$ZIPFILE" ] && [ -f "$ZIPFILE" ]; then
+    debug " "
+    debug " ✦ Checking Module Integrity..."
 
-# Check integrity
-debug " ✦ Checking Module Integrity..."
-sh "$TMPDIR/verify.sh" || exit 1
+    if [ -f "$UPDATE/verify.sh" ]; then
+      if sh "$UPDATE/verify.sh"; then
+        debug " ✦ Verification completed successfully"
+      else
+        debug " ✘ Verification failed"
+        exit 1
+      fi
+    else
+      debug " ✦ verify.sh not found ❌"
+      exit 1
+    fi
+  fi
+
+# Preserve config files from old version 
+debug " ✦ Checking for existing config files..."
+for FILE in $FILES; do
+  if [ -f "$OLD_MOD_PATH/$FILE" ]; then
+    debug " ✦ Preserving $FILE"
+    cp -f "$OLD_MOD_PATH/$FILE" "$UPDATE_MOD_PATH/$FILE"
+    chmod 644 "$UPDATE_MOD_PATH/$FILE"
+  fi
+done
 
 echo " "
 echo " "
@@ -107,12 +137,5 @@ echo " ⣇⠀⠀⠀⠈⣹⠶⠦⠤⠤⣤⣤⣤⡤⠤⠤⠴⠶⣏⠁⠀⠀⠀⣸�
 echo " ⠈⠓⠲⠖⠚⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠓⠲⠶⠚⠁⠀"
 echo " "
 echo " "
-sleep 3
-
-# Delete hash folder
-rm -rf /data/adb/QuiteKill_verify
-
-echo " ✦ Redirecting to Release Source..."
-sleep 1.5
-nohup am start -a android.intent.action.VIEW -d https://t.me/MeowDump >/dev/null 2>&1 &
+release_source
 exit 0
