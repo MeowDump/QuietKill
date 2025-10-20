@@ -1,7 +1,7 @@
 id=QuiteKill
 name=Quite Kill 🤫🔪
-version=v3
-versionCode=300
+version=v4
+versionCode=400
 author=𝗠𝗘𝗢𝗪𝗻𝗮 💅 || tg@MeowDump
 description=Automatically kills running apps when the device is locked via the power button, improving battery life and overall performance.
 updateJson=https://raw.githubusercontent.com/MeowDump/MeowDump/refs/heads/main/QuietKill/release.json
