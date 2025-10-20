@@ -1,57 +1,29 @@
 #!/system/bin/sh
 
-MODPATH=${MODPATH:-/data/adb/modules_update/QuiteKill}
-VERIFY_TEMP_DIR="/data/adb/QuiteKill_verify"
+UPDATE="/data/adb/modules_update/QuiteKill"
+HASHFILE="$UPDATE/hash"
 
-# Clean temp dir
-rm -rf "$VERIFY_TEMP_DIR"
-mkdir -p "$VERIFY_TEMP_DIR"
+# Check if hash file exists
+if [ ! -f "$HASHFILE" ]; then
+    echo " ✦ Hash file not found: $HASHFILE"
+    exit 1
+fi
 
-log() {
-  echo " ✦ $1"
-}
+while IFS='|' read -r RELPATH EXPECT_SHA256; do
+    FILE="$UPDATE/$RELPATH"
+    
+    # Check if file exists
+    if [ ! -f "$FILE" ]; then
+        echo " ✦ File $FILE not found!"
+        exit 1
+    fi
 
-abort_verify() {
-  ui_print "----------------------------------------------"
-  echo " "
-  echo "Error: File integrity compromised.⚠️"
-  echo "Please download the module again"
-  echo "from its release source to restore it."
-  sleep 2
-  am start -a android.intent.action.VIEW -d https://t.me/MeowRedirect >/dev/null 2>&1
-  echo "Installation aborted due to failed verification."
-  echo " "
-  exit 1
-}
+    # Compute the actual SHA256 of the file
+    ACTUAL_SHA256=$(sha256sum "$FILE" | awk '{print $1}')
 
-verify_file() {
-  local relpath="$1"
-  local file="$MODPATH/$relpath"
-  local hashfile="$file.sha256"
-
-  [ ! -f "$file" ] && log "Missing: $relpath" && abort_verify
-  [ ! -f "$hashfile" ] && log "Missing hash: $relpath.sha256" && abort_verify
-
-  local expected actual
-  expected=$(cut -d' ' -f1 < "$hashfile")
-  actual=$(sha256sum "$file" | cut -d' ' -f1)
-
-  [ "$expected" != "$actual" ] && log "Corrupt: $relpath" && abort_verify
-
-  log "Verified: $relpath"
-  mkdir -p "$VERIFY_TEMP_DIR/$(dirname "$relpath")"
-  cp -af "$file" "$VERIFY_TEMP_DIR/$relpath"
-}
-
-# Find all files (excluding *.sha256)
-ALL_FILES=$(cd "$MODPATH" && find . -type f ! -name "*.sha256" | cut -c3-)
-
-for relpath in $ALL_FILES; do
-  verify_file "$relpath"
-done
-
-# Cleanup hash files
-rm -rf "$VERIFY_TEMP_DIR"
-find "$MODPATH" -type f -name "*.sha256" -delete
-
-log "Verification completed successfully."
+    # Compare the actual and expected hashes
+    if [ "$ACTUAL_SHA256" != "$EXPECT_SHA256" ]; then
+        echo " ✦ Hash mismatch for $FILE (Expected: $EXPECT_SHA256, Got: $ACTUAL_SHA256)"
+        exit 1
+    fi
+done < "$HASHFILE"
