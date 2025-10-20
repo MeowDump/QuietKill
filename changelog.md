@@ -1,89 +1,63 @@
-# QuietKill ( v3 )
-> Release Date: 30/08/2025
+# QuietKill ( v4 )
+> Release Date: 20/10/2025
 
 ### What's New?
 
-### Power-key listener (quick tap)
-- Added low-CPU event reader using `/dev/input/event0` with raw power key codes (DOWN/UP).
-- Added fallback polling loop using `getevent -lqc1` with 0.2s interval and 4s timeout.
-- Added timestamped logging to `/data/adb/modules/QuiteKill/logs/kill.log` and ensured log dir creation.
-- Added float diff with `bc` when available, falls back to `awk`.
-- Auto-selects event source: uses `event0` if readable, otherwise falls back to polling.
-- Preserved thresholds: `CLICK_THRESHOLD=0.3`, `COOLDOWN=5`.
-- Removed popup UI integration. Replaced on-screen toasts with log entries.
-- Removed `popup()` and `am start ... meow.helper.MainActivity`.
-- Reduced CPU usage by eliminating tight loops and `seq`-based polling.
+1. Configurable Flags (via config.txt):
+   - PARALLEL        : Enable parallel killing of apps.
+   - MAX_JOBS        : Maximum concurrent jobs when running in parallel.
+   - ONLY_RUNNING    : Kill only apps that are currently running.
+   - SKIP_CRITICAL   : Skip critical/system apps automatically.
+   - VERBOSE         : Print log messages to console during execution.
+   - WILDCARD_IGNORE : Allow wildcard patterns in ignore list for flexible skipping.
 
-### Kill engine (`QuiteKill.sh`)
-- Log file path changed from `$MODDIR/webroot/output.log` to `$MODDIR/logs/output.log`.
-- Ignore list and ForceKill list parsing unchanged.
-- Behavior unchanged: kills all user apps, kills only listed system apps.
+2. Parallel Execution:
+   - User apps can now be killed concurrently using multiple jobs for faster execution.
+   - Controlled by PARALLEL and MAX_JOBS settings.
 
-### Web UI (`index.html`)
-- Switched to Material Icons and Material Symbols. Added custom `Mona` font.
-- New snackbar notifications (success, error, info). Replaced `alert()`.
-- Added ripple effects and proper loading states for action buttons.
-- Terminal panel upgrades:
-  - Auto-scroll toggle
-  - Live killed and skipped counters
-  - Log filter search
-  - Copy log
-  - Export log
-  - Clear log
-- Export now writes to `/sdcard/kill-control-log.txt`.
-- Input sanitization for package names when adding to lists.
-- Theme improvements: new palette, shadows, larger radii, prefers-color-scheme support, persistent choice.
-- Updated log source path to `$MODDIR/logs/output.log` to match backend.
-- UI layout and list items refined. Truncates long package names with ellipsis.
-- Removed emoji-only section headers and the old minimal log-controls row.
+3. Wildcard Ignore Support:
+   - Ignore list can now include wildcard patterns (if WILDCARD_IGNORE=1).
+   - Improves flexibility for skipping multiple related apps.
 
-### Removals and structure cleanup
-- Removed dependency on the popup helper app.
-- Removed `webroot` as a log target. All logs standardized under `$MODDIR/logs/`.
-- Removed legacy alert-based messaging.
+4. Critical App Protection:
+   - Automatically protects key system apps from being force-stopped.
+   - Examples: android, com.android.systemui, com.android.settings, com.google.android.gms, launchers.
 
-### Impact
-- Lower CPU usage and more reliable power key detection.
-- Unified logging across backend and UI.
-- Better UX with actionable log tools and clear status feedback.
+5. Pre-Kill Checks:
+   - Verifies if the app is installed before attempting to kill.
+   - Optionally skips apps not currently running (controlled by ONLY_RUNNING).
+   - Skips apps listed in ignore list or considered critical.
 
+6. Enhanced Logging:
+   - Timestamped log messages for all operations.
+   - Separate temporary files:
+       - STATUS_OK    : Apps successfully killed.
+       - STATUS_FAIL  : Apps skipped or failed to stop.
+   - Verbose output to console if VERBOSE=1.
 
+7. Temporary Directory:
+   - TMPDIR used for intermediate tracking of killed/skipped apps.
+   - Automatically cleaned after script finishes.
 
-# QuietKill ( v2.1 HOTFIX )
-> Release Date: 30/06/2025
+8. Elapsed Time & Summary:
+   - Logs total runtime of the script.
+   - Shows counts of killed apps vs skipped/failed apps.
 
-### What's New?
-- **Removed** support for long-press power key to kill apps
-- **Fixed** issue where script hash files weren't deleted after installation
-- **Added** Popup Toaster to the ignore list by default
-- **Improved** power button event handling for better responsiveness
+9. Force List Enhancements:
+   - Same checks applied to system apps listed in ForceKill.txt:
+       - Ignore list
+       - Critical apps protection
+       - Installed/running verification
 
+10. Auto-Creation of Config:
+    - If config.txt is missing, it is automatically created with default flag values.
 
+11. Improved Reliability:
+    - Handles empty or missing ignore/force lists gracefully.
+    - More modular code structure with functions like do_kill, kill_app_once, run_with_pool.
+    - Prevents unnecessary attempts to kill non-installed or non-running apps.
 
-# QuietKill ( v2 )
-> Release Date: 30/06/2025
-
-### What's New?
-
-- **Added** support for pressing the power key to kill all background apps  
-- **Added** support for holding the power key to kill all background apps  
-- **Improved** WebUI with enhanced usability and performance  
-- **Added** option to force kill system apps (especially useful for GApps-based ROMs)  
-- **Added** consent confirmation prompt in the WebUI for safer interactions  
-- **Enhanced** Dark Theme for a more consistent and visually appealing experience  
-- **Optimized** script execution speed in WebUI, now running **2x faster**  
-
-### Removed
-
-- Volume up trigger functionality  
-- Live terminal log output feature  
-- Force kill on successful boot  
-- Early init script
-
-
-
-# QuietKill ( v1 )
-> Release Date: 27/06/2025
-
-- Initial release 
+12. Backward Compatibility:
+    - Fully compatible with previous ignore.txt and ForceKill.txt formats.
+    - Existing user and system app lists continue to work without modification.
 
