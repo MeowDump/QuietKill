@@ -42,12 +42,35 @@ QuiteKill is a KernelSU/Magisk module that force-stops background apps to free m
 2. **System Apps** – Only killed if explicitly added to the Force Kill list  
 3. **Ignored Apps** – Always protected and never killed, regardless of trigger  
 
+## Configuration
+> PATH : /data/adb/modules/QuiteKill/config.txt
+```
+# Edit values as needed (0 = off, 1 = on)
+
+# Kill multiple apps at the same time (faster)
+PARALLEL=1
+
+# Maximum number of apps to kill at the same time in parallel mode
+MAX_JOBS=4
+
+# Kill only apps that are currently running (1 = only running, 0 = all apps)
+ONLY_RUNNING=1
+
+# Skip critical system apps to avoid crashes (1 = skip, 0 = allow)
+SKIP_CRITICAL=1
+
+# Generate & save logs (1 = save, 0 = don't save)
+VERBOSE=1
+
+# Use wildcard patterns in ignore list (1 = enable, 0 = exact match only)
+WILDCARD_IGNORE=0
+```
 
 ## Installation
 
 - Flash via Magisk, KernelSU, or Apatch  
 - Reboot your device  
-- Access the WebUI in the module’s webroot  
+- Open the [WebUI](https://github.com/5ec1cff/KsuWebUIStandalone/releases) and configure the settings as per your needs
 
 
 ## Disclaimer
