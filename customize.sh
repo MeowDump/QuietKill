@@ -4,12 +4,11 @@
 MODDIR=${0%/*}
 LOG="/sdcard/installation.log"
 UPDATE="/data/adb/modules_update/QuiteKill"
-mkdir -p "$MODPATH/logs"
+SRC="$UPDATE/module.prop"
 OLD_MOD_PATH="/data/adb/modules/QuiteKill"
-UPDATE_MOD_PATH="/data/adb/modules_update/QuiteKill"
-
-# Files to preserve
+DEST="$OLD_MOD_PATH/module.prop"
 FILES="ForceKill.txt ignore.txt"
+mkdir -p "$MODPATH/logs"
 
 # Load module details
 MODNAME=$(grep_prop name $TMPDIR/module.prop)
@@ -24,14 +23,23 @@ DEVICE=$(getprop ro.product.device)
 ANDROID=$(getprop ro.system.build.version.release)
 SDK=$(getprop ro.system.build.version.sdk)
 ARCH=$(getprop ro.product.cpu.abi)
-CHIPSET=$(getprop ro.device.chipset)
-DISPLAY=$(getprop ro.device.display_resolution)
 BUILD_DATE=$(getprop ro.system.build.date)
-MAINTAINER=$(getprop ro.device.maintainer)
 ROM_TYPE=$(getprop ro.system.build.type)
-FINGERPRINT=$(getprop ro.system.build.fingerprint)
 SE=$(getenforce)
 KERNEL=$(uname -r)
+
+prepare_directories() {
+    debug " ✦ Preparing Required Directories  "
+    [ ! -d "/data/adb/modules/QuiteKill" ] && mkdir -p "/data/adb/modules/QuiteKill"
+    [ ! -f "$SRC" ] && return 1
+}
+
+# Handle module prop file
+handle_module_props() {
+    debug " ✦ Handling Module Properties  "
+    touch "/data/adb/modules/QuiteKill/update"
+    cp "$SRC" "$DEST"
+}
 
 # Logger
 debug() {
@@ -118,11 +126,18 @@ debug " ✦ Checking for existing config files..."
 for FILE in $FILES; do
   if [ -f "$OLD_MOD_PATH/$FILE" ]; then
     debug " ✦ Preserving $FILE"
-    cp -f "$OLD_MOD_PATH/$FILE" "$UPDATE_MOD_PATH/$FILE"
-    chmod 644 "$UPDATE_MOD_PATH/$FILE"
+    cp -f "$OLD_MOD_PATH/$FILE" "$UPDATE/$FILE"
+    chmod 644 "$UPDATE/$FILE"
   fi
 done
 
+# Permissions
+debug " ✦ Setting permissions..."
+set_perm_recursive "$MODPATH" 0 0 0755 0644
+[ -f "$MODPATH/system/bin/daemon" ] && set_perm "$MODPATH/system/bin/daemon" 0 0 0755
+
+prepare_directories
+handle_module_props
 echo " "
 echo " "
 echo " ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣄⣠⣄⠀"
